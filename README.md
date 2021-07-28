@@ -10,7 +10,7 @@ To add Java-CLI to a project, download the project files and move the javacli/ d
 ## Overview
 | Name     | Creator        | First Release | Latest Stable Version |
 | -------- | -------------- | ------------- | --------------------- |
-| Java-CLI | Jonathan Uhler | -             | -                     |
+| Java-CLI | Jonathan Uhler | 7/28/2021     | full-1.0.0            |
 
 ## General Features
 | Generates Help/Usage | Customizable Help/Usage | Dependencies | User Docs |
