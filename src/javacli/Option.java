@@ -14,74 +14,37 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+
 // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 // public interface Option
 //
-// Command-line option skeleton
+// Command-line option
+//
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
 public @interface Option {
 
-    // ====================================================================================================
-    // String name
-    //
-    // Name parameter for an option
-    //
-    String name();
-    // end: String name
+    String name(); // Specifies the full name
 
+    char abbreviation() default Character.MIN_VALUE; // Specifies the abbreviated name
 
-    // ====================================================================================================
-    // char abbreviation
-    //
-    // Name abbreviation for an option
-    //
-    char abbreviation() default Character.MIN_VALUE;
-    // end: char abbreviation
+    String help() default ""; // Specifies the help message to print for the option
 
+    int nargs() default 0; // Specifies the expected number of arguments
 
-    // ====================================================================================================
-    // String help
-    //
-    // Help message for an option
-    //
-    String help();
-    // end: String help
+    Class<?> type() default String.class; // Specifies the expected type of the arguments
 
+    boolean multiple() default false; // Specifies if multiple instances of the option are allowed
 
-    // ====================================================================================================
-    // int numArgs
-    //
-    // Number of required arguments for an option
-    //
-    int numArgs() default 0;
-    // end: int numArgs
+    String defaultValue() default ""; // Specifies the default value for the option
 
+    boolean showDefault() default false; // Specifies if the default value should be shown in the help message
 
-    // ====================================================================================================
-    // String[] argDescriptions
-    //
-    // Descriptions for required arguments for an option
-    //
-    String[] argDescriptions() default {};
-    // end: String[] argDescriptions
+    boolean isFlag() default false; // Specifies if the option is a flag (one that has 0 arguments. Obvious case being --version)
 
+    boolean doCount() default false; // Specifies if the number of times the option shows up should be counted (obvious case being --verbose)
 
-    // ====================================================================================================
-    // String[] argRegex
-    //
-    // Regex for required arguments for an option
-    //
-    String[] argRegex() default {};
-    // end: String[] argRegex
-
-
-    // ====================================================================================================
-    //
-    // Default values for required arguments for an option
-    //
-    String[] defaultValue() default {};
-    // end: String[] defaultValue
+    int _countValue() default 0; // The number of times the option has been included, if doCount == true
 
 }
 // end: public interface option
