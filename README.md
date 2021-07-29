@@ -3,7 +3,9 @@ A light-weight command line parser library for Java
 
 
 # Installation
-To add Java-CLI to a project, download the project files and move the javacli/ directory into the project of choice
+To add Java-CLI to a project, download the project files and move the javacli.jar file into the project of choice.\
+The project can now be compiled by specifying the path to the jar like so: ```javac -cp /path/to/javacli.jar source-files.java```\
+Alternatively, a shebang line can be used in the main .java file to allow the project to be run directly. An example shebang looks like: ```#!/usr/bin/java --source 14 --class-path /path/to/javacli.jar```
 
 
 # Features
