@@ -345,7 +345,7 @@ public class OptionParser {
             }
 
             // Check for --version
-            if ((arg.equals("--version") || (arg.startsWith("-") && arg.contains("" + versions.get(0).abbreviation()) && !version.equals("")))) {
+            if (versions.size() > 0 && (arg.equals("--version") || (arg.startsWith("-") && arg.contains("" + versions.get(0).abbreviation()) && !version.equals("")))) {
                 System.out.println(name + ", version " + version);
                 System.exit(0);
             }
