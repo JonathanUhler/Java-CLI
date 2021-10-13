@@ -6,7 +6,7 @@
 // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 
-package javacli;
+package javacli.annotations;
 
 
 import java.lang.annotation.ElementType;

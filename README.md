@@ -5,7 +5,7 @@ A light-weight command line parser library for Java
 # Installation
 To add Java-CLI to a project, download the project files and move the javacli.jar file into the project of choice.\
 The project can now be compiled by specifying the path to the jar like so: ```javac -cp /path/to/javacli.jar source-files.java```\
-Alternatively, a shebang line can be used in the main .java file to allow the project to be run directly. An example shebang looks like: ```#!/usr/bin/java --source 14 --class-path /path/to/javacli.jar```
+Alternatively, a shebang line can be used in the main .java file to allow the project to be run directly. An example shebang looks like: ```#!/usr/bin/java --source 17 --class-path /path/to/javacli.jar```
 
 
 # Features
@@ -22,7 +22,23 @@ Alternatively, a shebang line can be used in the main .java file to allow the pr
 ## POSIX Conventions Adherence
 | Short Option Groups (-abc) | No Spaces (-oarg) | Equals Support (--opt=val) | Counting/Multiple Support | "--" Special Option |
 |--------------------------- | ----------------- | -------------------------- | ------------------------- | ------------------- |
-| yes                        | yes               | yes                        | yes                       | yes                 |
+| yes                        | yes               | yes                        | only for JDK 8 and below  | yes                 |
+
+## Valid Short Option Syntax
+| Number of Arguments | Valid Usage Cases
+| ------------------- | ------------------------------
+| 0                   | -o
+| 1                   | -o1<br>-o 1<br>-o=1
+| more than 1; fixed  | -o 1 2 3<br>-o 1,2,3<br>-o=1,2,3
+| variable            | -o1<br>-o 1<br>-o=1<br>-o 1,2,3<br>-o=1,2,3
+
+## Valid Long Option Syntax
+| Number of Arguments | Valid Usage Cases
+| ------------------- | ------------------------------
+| 0                   | --opt
+| 1                   | --opt 1<br>--opt=1
+| more than 1; fixed  | --opt 1 2 3<br>--opt 1,2,3<br>--opt=1,2,3
+| variable            | --opt 1<br>--opt=1<br>--opt 1,2,3<br>--opt=1,2,3
 
 
 # Usage
@@ -42,8 +58,11 @@ Specifies an option the user can include when running the script.
 | multiple     | Whether multiple uses of the option are allowed                    | no       | false        | -
 | defaultValue | The default value for the arguments if the option is not specified | no       | ""           | nargs == 1
 | showDefault  | Whether the default value should be shown in --help                | no       | false        | defaultValue has been specified
-| isFlag       | If the option is a flag (has no arguments)                         | no       | false        | nargs == 0
-| doCount      | Whether the number of times the option is used should be counted   | no       | false        | multiple == true
+| isFlag       | If the option is a flag (has no arguments)                         | no       | false        | nargs == 0, variable type of the annotation must be boolean
+| ~~doCount~~  | ~~Whether the number of times the option is used should be counted~~| no       | false        | ~~multiple == true~~
+
+**Note**: the ```doCount``` parameter is deprecated in JDK 9 and above as the ```setAccessible()``` method no longer works.\
+A solution to this problem is currently being worked on
 
 ### @Argument
 | Parameter | Description                                     | Required | Default      | Prerequisites
@@ -67,33 +86,45 @@ To create options, add an annotation to a variable with the same type as the exp
 ## Example
 
 ```java
-import javacli.Argument;
-import javacli.Option;
+import javacli.annotations.Argument;
+import javacli.annotations.Option;
+import javacli.annotations.Version;
 import javacli.OptionParser;
-import javacli.Version;
+
 import java.util.List;
 
+
+// Example class
 public class Example {
     
     // Define options
-    @Option(name = "foo", abbreviation = 'f', help = "foo option", isFlag = true) public static boolean foo;
+    // ------------------
+    // foo -> a boolean flag with no arguments
+    // output -> an example option with 1 argument and a default value
+    // many -> an option with 3 arguments
+    //
+    @Option(name = "foo", abbreviation = 'f', help = "example flag option option", isFlag = true, type = boolean.class) public static boolean foo;
     @Option(name = "output", abbreviation = 'o', help = "Set output file.", nargs = 1, defaultValue = "/path/") public static String output;
     @Option(name = "many", abbreviation = 'm', help = "An option with many arguments", nargs = 3, type = double.class) public static List<Double> many;
     
-    // Define version special option
+    // Define version option
     @Version(version = "1.0.0", abbreviation = 'v') public static String version;
     
-    // Define arguments
+    // Define command line arguments
+    // ------------------
+    // input -> a required string
+    // number -> a required integer
+    //
     @Argument(name = "input") public static String input;
     @Argument(name = "number", type = Integer.class) public static Integer number;
 
-    // main class
-    public static void main(String[] args) {
-
-        // Create a new parser
-        OptionParser parser = new OptionParser(javaclitest.class);
+    // main method
+    public static void main(String[] args) throws Exception {
+        // Create a new parser, passing in a reference to the class with the annotations
+        OptionParser parser = new OptionParser(Example.class);
         parser.parse(args); // Parse with the String[] args from java
 
+        
         // Do things with the option and argument values
         System.out.println("foo has been specified: " + foo); // True if specified, false otherwise
         System.out.println("output's value is: " + output); // If an option with args isn't specified it will be null if a defaultValue also hasn't been specified
@@ -109,5 +140,15 @@ public class Example {
     }
 
 }
+```
 
+
+# Possible Questions
+* [How do I specify an option with a variable number of arguments?](#How-do-I-specify-an-option-with-a-variable-number-of-arguments?)
+
+## How do I specify an option with a variable number of arguments?
+Java-CLI supports options with a variable number of arguments (>=1 args).\
+To define an option as being able to take a variable number of arguments, use "-1" for the "nargs" parameter.
+```java
+    @Option(name = "variable", abbreviation = 'v', help = "An option with a variable number of arguments", nargs = -1, type = double.class) public static List<Double> variable;
 ```

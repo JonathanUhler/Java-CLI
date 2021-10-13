@@ -13,3 +13,9 @@ FULL-RELEASES--
 
     1.0.2   7/29/21     Changes in this version:
                             -Fixed a minor issue with the @Version annotation
+
+    1.1.0   10/12/21    Changes in this version:
+                            -Refactored package structure
+                            -Improved documentation
+                            -Improved legal and illegal POSIX use cases for options
+                            -Temporarily deprecated the "doCount" parameter for options for JDK 9+

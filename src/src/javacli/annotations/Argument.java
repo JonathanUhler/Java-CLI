@@ -1,12 +1,12 @@
 // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-// Version.java
+// Argument.java
 // Java-CLI
 //
 // Created by Jonathan Uhler on 6/25/21
 // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 
-package javacli;
+package javacli.annotations;
 
 
 import java.lang.annotation.ElementType;
@@ -16,17 +16,17 @@ import java.lang.annotation.Target;
 
 
 // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-// public interface Version
+// public interface Argument
 //
-// Version option
+// Command-line argument
 //
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Version {
+public @interface Argument {
 
-    String version(); // Specifies the version number/string
+    String name(); // Specifies the name of the argument
 
-    char abbreviation() default Character.MIN_VALUE; // Specifies the abbreviation for the version option
+    Class<?> type() default String.class; // Specifies the expected type of the argument
 
 }
-// end: public interface Version
+// end: public interface Argument
