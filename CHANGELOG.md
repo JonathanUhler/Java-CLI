@@ -23,3 +23,6 @@ FULL-RELEASES--
     2.0.0   10/24/21    Changes in this version:
                             -Added the @Command annotation
                             -Added support for sub-commands
+
+    2.0.1   10/24/21    Changes in this version:
+                            -Fixed a minor issue with sub-command formatting

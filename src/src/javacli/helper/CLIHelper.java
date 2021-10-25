@@ -99,7 +99,7 @@ public class CLIHelper {
             Command command = f.getAnnotation(Command.class);
 
             if (command != null) {
-                subCommands.append("\t")
+                subCommands.append("\n\t")
                         .append(command.name())
                         .append(" [OPTIONS]\t")
                         .append((!command.help().equals("")) ? ": " + command.help() : "");
