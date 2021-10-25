@@ -32,23 +32,27 @@ import java.util.*;
 public class OptionParser {
 
     // App information
-    private final Class<?> optionsDefinitionClass; // The class containing the option/argument definitions
-    private final String name;
+    private final ArrayList<Class<?>> optionsDefinitionClasses; // The class containing the option/argument definitions
+    private final ArrayList<String> definitionClassNames;
     private String version = "";
 
+    // Current command information
+    private Class<?> optionsDefinitionClass;
+    private String definitionClassName;
+
     // Option information
-    private final ArrayList<Option> options = new ArrayList<>();
-    private final ArrayList<Argument> arguments = new ArrayList<>();
-    private final ArrayList<Version> versions = new ArrayList<>();
+    private ArrayList<Option> options;
+    private ArrayList<Argument> arguments;
+    private ArrayList<Version> versions;
 
-    private final ArrayList<String> optionNames = new ArrayList<>();
-    private final ArrayList<Character> optionAbbreviations = new ArrayList<>();
-    private final ArrayList<String> argumentNames = new ArrayList<>();
+    private ArrayList<String> optionNames;
+    private ArrayList<Character> optionAbbreviations;
+    private ArrayList<String> argumentNames;
 
-    private final ArrayList<String> optionFieldNames = new ArrayList<>();
-    private final ArrayList<Class<?>> optionFieldTypes = new ArrayList<>();
-    private final ArrayList<String> argumentFieldNames = new ArrayList<>();
-    private final ArrayList<Class<?>> argumentFieldTypes = new ArrayList<>();
+    private ArrayList<String> optionFieldNames;
+    private ArrayList<Class<?>> optionFieldTypes;
+    private ArrayList<String> argumentFieldNames;
+    private ArrayList<Class<?>> argumentFieldTypes;
 
     // Option and argument information
     private final ArrayList<String> inputArgs = new ArrayList<>(); // List of arguments to the program
@@ -62,13 +66,26 @@ public class OptionParser {
     //
     // Arguments--
     //
-    // optionsDefinitionClass:  the class with the option, arguments, and version annotations
+    // optionsDefinitionClasses:  the class with the option, arguments, and version annotations
     //
     public OptionParser(Class<?> optionsDefinitionClass) {
-        this.optionsDefinitionClass = optionsDefinitionClass;
-        this.name = optionsDefinitionClass.getName();
+        this.optionsDefinitionClasses = new ArrayList<>(Collections.singletonList(optionsDefinitionClass));
+        this.definitionClassNames = new ArrayList<>(Collections.singletonList(optionsDefinitionClass.getSimpleName()));
+
+        this.optionsDefinitionClass = this.optionsDefinitionClasses.get(0);
+        this.definitionClassName = this.definitionClassNames.get(0);
     }
     // end: public OptionParser
+
+
+    public OptionParser(ArrayList<Class<?>> optionsDefinitionClasses) {
+        this.optionsDefinitionClasses = optionsDefinitionClasses;
+        this.definitionClassNames = new ArrayList<>();
+        for (Class<?> optionClass : this.optionsDefinitionClasses) this.definitionClassNames.add(optionClass.getSimpleName());
+
+        this.optionsDefinitionClass = this.optionsDefinitionClasses.get(0);
+        this.definitionClassName = this.definitionClassNames.get(0);
+    }
 
 
     // ====================================================================================================
@@ -149,6 +166,19 @@ public class OptionParser {
     // None
     //
     private void init() {
+        this.options = new ArrayList<>();
+        this.arguments = new ArrayList<>();
+        this.versions = new ArrayList<>();
+        this.optionNames = new ArrayList<>();
+        this.optionAbbreviations = new ArrayList<>();
+        this.argumentNames = new ArrayList<>();
+        this.optionFieldNames = new ArrayList<>();
+        this.optionFieldTypes = new ArrayList<>();
+        this.argumentFieldNames = new ArrayList<>();
+        this.argumentFieldTypes = new ArrayList<>();
+        this.version = "";
+        this.definitionClassName = this.optionsDefinitionClass.getSimpleName();
+
         for (Field f : this.optionsDefinitionClass.getFields()) {
             Option o = f.getAnnotation(Option.class);
             Argument a = f.getAnnotation(Argument.class);
@@ -194,13 +224,13 @@ public class OptionParser {
         for (String arg : args) {
             // Check for --help
             if (arg.equals("--help")) {
-                System.out.println(new CLIHelper().generateHelp(this.optionsDefinitionClass, this.name, this.version));
+                System.out.println(new CLIHelper().generateHelp(this.optionsDefinitionClass, this.definitionClassName, this.version));
                 System.exit(0);
             }
 
             // Check for --version
             if (this.versions.size() > 0 && (arg.equals("--version") || (arg.startsWith("-") && arg.contains("" + this.versions.get(0).abbreviation()) && !this.version.equals("")))) {
-                System.out.println(this.name + ", version " + this.version);
+                System.out.println(this.definitionClassNames + ", version " + this.version);
                 System.exit(0);
             }
         }
@@ -231,7 +261,7 @@ public class OptionParser {
             if (!dataIsCollection) {
                 PropertyEditor editor = PropertyEditorManager.findEditor(castType);
                 editor.setAsText(data.toString());
-                f.set(this.optionsDefinitionClass, editor.getValue());
+                f.set(this.optionsDefinitionClasses, editor.getValue());
             }
             // Check for casting for multiple types
             else {
@@ -246,7 +276,7 @@ public class OptionParser {
                 }
 
                 // Set the data
-                f.set(this.optionsDefinitionClass, castedDataList);
+                f.set(this.optionsDefinitionClasses, castedDataList);
             }
         } catch (Exception e) {
             CLIHelper.cliAssert(false,
@@ -274,12 +304,11 @@ public class OptionParser {
     public void parse(String[] args) throws Exception {
         this.init(); // Set up information about the options
         new AnnotationSyntax().parseOptionDefinitions(this); // Parse the option definitions in the optionDefinitionsClass
-        this.parseSpecialOptions(args); // Parse for and handle special options like --help and --version
 
         ParsedData parsedData = null; // Initialize a data structure to hold the parsed information
         try { parsedData = this.parseAndExitUponError(Arrays.asList(args)); } // Try parsing the options and args and catch any errors by printing the help menu
         catch (Exception e) {
-            System.out.println(new CLIHelper().generateHelp(this.optionsDefinitionClass, this.name, this.version));
+            System.out.println(new CLIHelper().generateHelp(this.optionsDefinitionClass, this.definitionClassName, this.version));
             System.exit(2);
         }
 
@@ -308,7 +337,7 @@ public class OptionParser {
                 else {
                     // If the option is a flag, set it to false
                     if (f.getAnnotation(Option.class).nargs() == 0) {
-                        f.set(this.optionsDefinitionClass, false);
+                        f.set(this.optionsDefinitionClasses, false);
                     }
                     // If the option has arguments and a default value, set it to the default value
                     else if (f.getAnnotation(Option.class).nargs() == 1 && !f.getAnnotation(Option.class).defaultValue().equals("")) {
@@ -352,10 +381,22 @@ public class OptionParser {
             // Check if the string is an argument to the program
             // The parseCounter in incremented automatically when parsing options so arguments to options will not be added to inputArgs
             if (!inputStr.startsWith("-") && !inputStr.startsWith("--")) {
+                if (this.definitionClassNames.contains(inputStr)) {
+                    this.optionsDefinitionClass = this.optionsDefinitionClasses.get(
+                            this.definitionClassNames.indexOf(inputStr)
+                    );
+                    this.definitionClassName = this.optionsDefinitionClass.getName();
+                    this.init();
+                    parseCounter++;
+                    continue;
+                }
+
                 this.inputArgs.add(inputStr);
                 parseCounter++;
                 continue;
             }
+
+            this.parseSpecialOptions((String[]) inputList.toArray()); // Parse for and handle special options like --help and --version
 
             // Check if there is an "--" signifying all following strings are arguments
             if (inputStr.equals("--")) {

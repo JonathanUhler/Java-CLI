@@ -43,7 +43,7 @@ Alternatively, a shebang line can be used in the main .java file to allow the pr
 
 # Usage
 ## Annotations
-Java-CLI contains three types to annotations that can be used. An ```@Option``` annotation, ```@Argument``` annotation, and a ```@Version``` annotation.
+Java-CLI contains four types to annotations that can be used. An ```@Option``` annotation, ```@Argument``` annotation, ```@Command``` annotation, and a ```@Version``` annotation.
 
 ### @Option
 Specifies an option the user can include when running the script.
@@ -69,6 +69,12 @@ A solution to this problem is currently being worked on
 | --------- | ----------------------------------------------- | -------- | ------------ | -------------------------------------------------------------------
 | name      | The name of the argument (to display on --help) | yes      | -            | -
 | type      | The excepted type of the argument               | no       | String.class | Must be the same as the variable type the annotation is attached to
+
+### @Command
+| Parameter | Description                                     | Required | Default      | Prerequisites
+| --------- | ----------------------------------------------- | -------- | ------------ | -------------------------------------------------------------------
+| name      | The name of the command (to display on --help)  | yes      | -            | -
+| help      | The statement describing the command            | no       | ""           | -
 
 ### @Version
 | Parameter    | Description                                       | Required | Default      | Prerequisites |
@@ -145,10 +151,23 @@ public class Example {
 
 # Possible Questions
 * [How do I specify an option with a variable number of arguments?](#How-do-I-specify-an-option-with-a-variable-number-of-arguments?)
+* [How do I specify sub commands?](#How-do-I-specify-sub-commands?)
 
 ## How do I specify an option with a variable number of arguments?
 Java-CLI supports options with a variable number of arguments (>=1 args).\
 To define an option as being able to take a variable number of arguments, use "-1" for the "nargs" parameter.
 ```java
     @Option(name = "variable", abbreviation = 'v', help = "An option with a variable number of arguments", nargs = -1, type = double.class) public static List<Double> variable;
+```
+
+## How do I specify sub commands?
+Java-CLI supports commands of commands, or sub-commands. \
+Each sub-command must be defined as an independent class with its own option and argument annotations as desired. \
+In order to parse sub-commands, create your instance of the ```OptionParser``` class with an ```ArrayList<Class<?>>``` of option definition classes rather than just one (note the first element of this array is treated as the "top level" command).
+```java
+ArrayList<Class<?>> commands = new ArrayList<>();
+commands.add(Example.class);
+commands.add(Example2.class);
+        
+OptionParser parser = new OptionParser(commands);
 ```

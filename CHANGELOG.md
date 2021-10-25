@@ -19,3 +19,7 @@ FULL-RELEASES--
                             -Improved documentation
                             -Improved legal and illegal POSIX use cases for options
                             -Temporarily deprecated the "doCount" parameter for options for JDK 9+
+
+    2.0.0   10/24/21    Changes in this version:
+                            -Added the @Command annotation
+                            -Added support for sub-commands

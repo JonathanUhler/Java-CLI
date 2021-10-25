@@ -2,6 +2,7 @@ package javacli.helper;
 
 
 import javacli.annotations.Argument;
+import javacli.annotations.Command;
 import javacli.annotations.Option;
 import javacli.annotations.Version;
 
@@ -90,6 +91,23 @@ public class CLIHelper {
 
         // Add the help option to the end
         help.append("\thelp\t: Print this message and exit");
+
+        // Go through all the sub commands
+        StringBuilder subCommands = new StringBuilder("");
+        for (Field f : optionsDefinitionClass.getFields()) {
+            // Get the command annotation
+            Command command = f.getAnnotation(Command.class);
+
+            if (command != null) {
+                subCommands.append("\t")
+                        .append(command.name())
+                        .append(" [OPTIONS]\t")
+                        .append((!command.help().equals("")) ? ": " + command.help() : "");
+            }
+        }
+
+        // Add sub commands
+        if (!subCommands.toString().equals("")) help.append("\n\n").append(subCommands);
 
         // Return the finished help statement
         return help.toString();
