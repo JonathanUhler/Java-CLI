@@ -20,7 +20,7 @@ public class CLIHelper {
         if (!assertion) {
             String err = "ERROR: javacli Assertion Failed; " + failureMessage + ((extraArgs.length > 0) ? " -\n\t" + String.join("\n\t", extraArgs) : "");
 
-            System.out.println(err);
+            System.out.println(err + "\n\n");
             throw new Exception("Assertion Failed: " + failureMessage);
         }
     }

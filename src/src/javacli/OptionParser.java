@@ -396,7 +396,7 @@ public class OptionParser {
                 continue;
             }
 
-            this.parseSpecialOptions((String[]) inputList.toArray()); // Parse for and handle special options like --help and --version
+            this.parseSpecialOptions(Arrays.stream(inputList.toArray()).toArray(String[]::new)); // Parse for and handle special options like --help and --version
 
             // Check if there is an "--" signifying all following strings are arguments
             if (inputStr.equals("--")) {
