@@ -26,3 +26,6 @@ FULL-RELEASES--
 
     2.0.1   10/24/21    Changes in this version:
                             -Fixed a minor issue with sub-command formatting
+
+    2.0.2   12/26/21    Changes in this version:
+                            -Added support for hyphen characters ("-") in option names (ex: "test-opt" instead of "testopt")

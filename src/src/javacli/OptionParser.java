@@ -188,7 +188,7 @@ public class OptionParser {
                 this.options.add(o);
                 this.optionNames.add(o.name());
                 this.optionAbbreviations.add(o.abbreviation());
-                this.optionFieldNames.add(f.getName());
+                this.optionFieldNames.add(f.getName().replaceAll("_", "-"));
                 this.optionFieldTypes.add(f.getType());
             }
             if (a != null) {
@@ -323,13 +323,14 @@ public class OptionParser {
             // The field is an option
             if (f.getAnnotation(Option.class) != null) {
                 Option o = f.getAnnotation(Option.class);
+                String oName = f.getName().replaceAll("_", "-");
                 // The option was specified by the user
-                if (optionArgs.containsKey(f.getName())) {
-                    Class<?> castType = this.options.get(this.optionNames.indexOf(f.getName())).type();
-                    List<String> data = optionArgs.get(f.getName());
+                if (optionArgs.containsKey(oName)) {
+                    Class<?> castType = this.options.get(this.optionNames.indexOf(oName)).type();
+                    List<String> data = optionArgs.get(oName);
 
                     // Cast and add single argument options
-                    if (optionArgs.get(f.getName()).size() == 1 && (o.nargs() == 1 || o.nargs() == 0)) { this.castAndAdd(f, castType, data.get(0), false); }
+                    if (optionArgs.get(oName).size() == 1 && (o.nargs() == 1 || o.nargs() == 0)) { this.castAndAdd(f, castType, data.get(0), false); }
                     // Cast and add multiple argument options
                     else { this.castAndAdd(f, castType, data, true); }
                 }
